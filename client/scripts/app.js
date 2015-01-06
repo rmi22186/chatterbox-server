@@ -129,9 +129,9 @@ app = {
       var message = {
         username: app.username,
         text: app.$text.val(),
-        objectId: (Math.random()).toString(),
-        createdAt: (Math.random()).toString(),
-        updateAt: (Math.random()).toString()
+        objectId: Math.floor(Math.random() * 10000).toString(),
+        createdAt: new Date(),
+        updateAt: new Date()
       };
 
       app.$text.val('');
@@ -163,18 +163,19 @@ app = {
     loadMsgs: function(){
       $.ajax({
         url: app.server,
+        type: 'GET',
         data: { order: '-createdAt' },
         contentType: 'application/json',
         success: function(json){
-          var showMessages = JSON.parse(json);
+          var showMessages = JSON.parse(json).results;
           app.displayMessages(showMessages);
-          console.log(json);
+          console.log('successfully loaded');
         },
         complete: function(){
           app.stopSpinner();
         },
         error: function() {
-          console.log('error loading messages')
+          console.log('error loading')
         }
       });
     },
@@ -190,7 +191,7 @@ app = {
           console.log("Successfully sent!")
           // message.objectId = json.objectId;
           // console.log(message);
-          app.displayMessage(message);
+          // app.displayMessage(message);
         },
         complete: function(){
           app.stopSpinner();
