@@ -1,3 +1,5 @@
+
+
 /*************************************************************
 
 You should implement your request handler function in this file.
@@ -14,6 +16,7 @@ this file and include it in basic-server.js so that it actually works.
 // exports.requestHandler = requestHandler;
 // exports.defaultCorsHeaders = defaultCorsHeaders;
 // var msg = '';
+var fs = require('fs');
 var resultObj = {};
 resultObj.results = [];
 var url = require('url');
@@ -32,23 +35,50 @@ exports.requestHandler = function(request, response) {
 
   if (request.method === 'GET') {
     var statusCode = 200;
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(resultObj));
-  }
 
-  if (request.method === 'POST') {
-    var msg = msg || '';
-    request.on('data', function(data) {
-      msg += data;
-      var messageObj= JSON.parse(msg);
-      resultObj.results.push(messageObj);
-      console.log(msg)
+    fs.readFile('./messages.txt', 'utf8', function(err,data) {
+      if (err) {
+        return console.log(err)
+      } else {
+        response.writeHead(statusCode, headers);
+        response.end(data);
+      }
     })
-
-    var statusCode = 201;
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(resultObj));
   }
+
+if (request.method === 'POST') {
+    //reading the file and setting contents to msg...
+    fs.readFile('./messages.txt', 'utf8', function(err,fileContent) {
+      if (err) {
+        return console.log(err);
+      } else {
+          // parse msg to be an object that contains a results array.
+        var fileContentObj = JSON.parse(fileContent);   //msg : {results: [{msg, msg, msg}]
+        request.on('data', function(newData) {
+
+          // parse data to be an object to be pushed into the results array
+          // stringify, then write to file
+          var incomingMsgObj = JSON.parse(newData);
+          // console.log('****THIS IS THE MSG***:' + msg);
+          fileContentObj.results.push(incomingMsgObj);
+
+          var statusCode = 201;
+          response.writeHead(statusCode, headers);
+          response.end(JSON.stringify(fileContentObj));
+
+          // rewriting the message text file (technically overwrites everything)
+          fs.writeFile('./messages.txt', JSON.stringify(fileContentObj), function(err) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log("The file was saved!");
+            }
+          }
+        );}
+      );}
+    }
+  );
+}
 
   if (request.method === 'OPTIONS') {
     // 204 is the response code means nothing is sent in the body, just sending the headers
