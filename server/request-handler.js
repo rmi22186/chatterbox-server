@@ -42,12 +42,12 @@ exports.requestHandler = function(request, response) {
       msg += data;
       var messageObj= JSON.parse(msg);
       resultObj.results.push(messageObj);
+      console.log(msg)
     })
 
     var statusCode = 201;
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(resultObj));
-    console.log(statusCode)
   }
 
   if (request.method === 'OPTIONS') {

@@ -163,11 +163,12 @@ app = {
     loadMsgs: function(){
       $.ajax({
         url: app.server,
-        type: 'GET',
+        // type: 'GET',
         data: { order: '-createdAt' },
         contentType: 'application/json',
         success: function(json){
-          var showMessages = JSON.parse(json).results;
+          console.log(json);
+          var showMessages = json.results;
           app.displayMessages(showMessages);
           console.log('successfully loaded');
         },
